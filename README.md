@@ -24,6 +24,7 @@ Con el entorno activado:
 ```powershell
 python -m nfl_model.track      # martes: califica la semana que terminó
 python -m nfl_model.predict    # miércoles: picks de la semana que viene
+python -m nfl_model.content    # imágenes 1080x1920 en reports/contenido/
 ```
 
 - `picks/picks_log.csv` es el registro permanente: solo se le agregan filas.
