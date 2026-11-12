@@ -1,0 +1,9 @@
+# Versiones sin fijar todavia. Despues de instalar, fijarlas con:
+#   pip freeze > requirements.lock.txt
+nflreadpy
+pandas
+polars
+pyarrow
+scikit-learn
+matplotlib
+pytest
