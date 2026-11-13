@@ -4,6 +4,7 @@ Tres imágenes, armadas desde el registro de picks:
   reports/contenido/semana_<temporada>_<NN>_picks.png   los picks más fuertes
   reports/contenido/semana_<temporada>_<NN>_vegas.png   mayor diferencia con Las Vegas
   reports/contenido/historial.png                       aciertos por rango de confianza
+  reports/contenido/semana_<temporada>_<NN>_duelo.png   ataque contra defensa más desigual
 
 El historial usa los picks en vivo ya calificados; mientras no haya ninguno,
 usa el backtest 2024-2025 y lo dice en la imagen.
@@ -270,6 +271,64 @@ def imagen_historial(tabla: list[dict], fuente: str, ruta: Path) -> Path | None:
     return _guardar(fig, ruta)
 
 
+def duelo_de_la_semana(picks: list[dict], perfiles: dict) -> dict | None:
+    """El cruce ataque-defensa más desigual entre los partidos de la semana."""
+    from .perfiles import duelos
+
+    mejor = None
+    for f in picks:
+        cruces = duelos(perfiles, f["local"], f["visita"])
+        if cruces and (mejor is None or cruces[0]["ventaja"] > mejor["ventaja"]):
+            mejor = {**cruces[0], "partido": f}
+    return mejor
+
+
+def imagen_duelo(
+    duelo: dict | None, equipos: int, temporada: int, semana: int, ruta: Path
+) -> Path | None:
+    if duelo is None:
+        return None
+    f = duelo["partido"]
+    aire = duelo["tipo"] == "aire"
+    modo = "aéreo" if aire else "terrestre"
+    via = "por aire" if aire else "por tierra"
+
+    fig, ax = _lienzo()
+    _encabezado(
+        ax,
+        f"NFL · Semana {semana} · {temporada}",
+        "Duelo de la semana",
+        "El cruce ataque-defensa más desigual",
+    )
+    _texto(ax, IZQ, 690, f"{f['visita']} en {f['local']}", 104, TINTA, "bold")
+    _texto(ax, IZQ, 760, f"Lugar entre los {equipos} equipos de la liga", 32, TINTA_2)
+
+    filas = (
+        (f"Ataque {modo} de {duelo['ataque']}", duelo["rank_ataque"], AZUL,
+         f"{duelo['valor_ataque']:.0f} yardas {via} por partido"),
+        (f"Defensa de {duelo['defensa']} {via}", duelo["rank_defensa"], NARANJA,
+         f"{duelo['valor_defensa']:.0f} yardas {via} permitidas por partido"),
+    )
+    y = 930
+    for etiqueta, lugar, color, detalle in filas:
+        ax.add_patch(Rectangle((IZQ, y - 34), 34, 34, facecolor=color, edgecolor="none"))
+        _texto(ax, IZQ + 52, y, etiqueta, 44, TINTA)
+        _texto(ax, DER, y, f"#{lugar}", 76, TINTA, "bold", "right")
+        # Barra más llena = mejor lugar (el #1 la llena completa).
+        _barra(ax, y + 30, (equipos - lugar + 1) / equipos, color)
+        _texto(ax, IZQ, y + 100, detalle, 30, TENUE)
+        y += 210
+
+    _texto(ax, IZQ, 1370, "Barra más llena = mejor lugar en la liga", 26, TENUE)
+    _texto(
+        ax, IZQ, 1440,
+        f"Pick del modelo: {f['pick']} ({float(f['p_pick']) * 100:.0f}%)",
+        44, TINTA, "bold",
+    )
+    _pie(ax)
+    return _guardar(fig, ruta)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Genera las imágenes para video.")
     parser.add_argument("--semana", type=int)
@@ -295,6 +354,16 @@ def main() -> None:
         imagen_vegas(picks, temporada, semana, carpeta / f"{base}_vegas.png"),
         imagen_historial(*datos_historial(), carpeta / "historial.png"),
     ]
+    from .predict import perfiles_de_semana
+
+    perfiles = perfiles_de_semana(temporada, semana)
+    if perfiles:
+        hechas.append(
+            imagen_duelo(
+                duelo_de_la_semana(picks, perfiles), len(perfiles),
+                temporada, semana, carpeta / f"{base}_duelo.png",
+            )
+        )
     for ruta in hechas:
         if ruta is not None:
             print(f"  {ruta}")

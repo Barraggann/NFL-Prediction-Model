@@ -24,6 +24,7 @@ Con el entorno activado:
 ```powershell
 python -m nfl_model.track      # martes: califica la semana que terminó
 python -m nfl_model.predict    # miércoles: picks de la semana que viene
+python -m nfl_model.perfiles   # rankings de los 32 equipos en reports/perfiles_<temporada>.md
 python -m nfl_model.content    # imágenes 1080x1920 en reports/contenido/
 ```
 

@@ -1,6 +1,6 @@
 # Elo: reporte
 
-Generado: 2026-11-11T20:17:00
+Generado: 2026-11-12T17:59:02
 
 ## Parámetros elegidos
 
@@ -72,16 +72,16 @@ Las temporadas 2024–2025 no se evalúan aquí a propósito.
 | Visita | Local | Pick | Elo | Las Vegas (mismo equipo) |
 |---|---|---|---|---|
 | BUF | NYJ | BUF | 85.8% | 78.2% |
-| JAX | TEN | JAX | 83.9% | 80.8% |
-| SEA | LV | SEA | 73.4% | 71.4% |
-| LA | ARI | LA | 71.8% | 80.4% |
-| LAC | BAL | BAL | 70.7% | 66.4% |
+| JAX | TEN | JAX | 83.9% | 82.2% |
+| SEA | LV | SEA | 73.4% | 71.8% |
+| LA | ARI | LA | 71.8% | 80.0% |
+| LAC | BAL | BAL | 70.7% | 66.9% |
 | SF | DAL | SF | 66.3% | 64.5% |
-| WAS | NYG | NYG | 65.0% | 56.3% |
-| MIA | IND | IND | 60.2% | 64.5% |
-| KC | ATL | KC | 59.9% | 62.2% |
+| WAS | NYG | NYG | 65.0% | 53.2% |
+| MIA | IND | IND | 60.2% | 63.7% |
+| KC | ATL | KC | 59.9% | 61.6% |
 | PIT | CIN | CIN | 59.3% | 61.6% |
 | HOU | CLE | HOU | 56.7% | 66.4% |
-| CAR | NO | NO | 56.0% | 55.1% |
-| MIN | GB | GB | 55.8% | 59.3% |
-| NE | DET | DET | 54.2% | 57.2% |
+| CAR | NO | NO | 56.0% | 54.3% |
+| MIN | GB | GB | 55.8% | 58.3% |
+| NE | DET | DET | 54.2% | 58.3% |

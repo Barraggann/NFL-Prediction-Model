@@ -77,6 +77,12 @@ def _pbp_falso() -> pl.DataFrame:
             "passer_id": ["q_kc", None, None, None, None],
             "passer_player_id": ["q_kc", None, "q_lv", None, None],
             "qb_epa": [1.2, 0.0, None, 0.5, 2.0],
+            # KC: pase de 12 y carrera de 3. OAK: captura de -7 con balón perdido y carrera de 5.
+            "play_type": ["pass", "run", "pass", "run", "no_play"],
+            "yards_gained": [12, 3, -7, 5, 0],
+            "sack": [0, 0, 1, 0, 0],
+            "interception": [0, 0, 0, 0, 0],
+            "fumble_lost": [0, 0, 1, 0, None],
         },
         schema_overrides={"passer_id": pl.String, "passer_player_id": pl.String},
     )
@@ -105,6 +111,17 @@ def test_resumen_por_equipo_cruza_ofensiva_y_defensiva():
     # La defensiva de KC es la ofensiva de LV.
     assert fila["KC"]["def_epa"] == pytest.approx(fila["LV"]["off_epa"])
     assert fila["LV"]["def_epa"] == pytest.approx(0.5)
+
+    # Yardas, capturas y balones: lo que uno hace en ataque es lo que el otro permite.
+    assert fila["KC"]["off_pass_yards"] == pytest.approx(12)
+    assert fila["KC"]["off_rush_yards"] == pytest.approx(3)
+    assert fila["KC"]["off_yards"] == pytest.approx(15)
+    assert fila["LV"]["off_pass_yards"] == pytest.approx(-7)  # la captura resta al pase
+    assert fila["LV"]["off_sacks"] == pytest.approx(1)
+    assert fila["LV"]["off_turnovers"] == pytest.approx(1)
+    assert fila["KC"]["def_sacks"] == pytest.approx(1)
+    assert fila["KC"]["def_turnovers"] == pytest.approx(1)
+    assert fila["KC"]["def_rush_yards"] == pytest.approx(5)
 
 
 # ---------- datos reales ----------

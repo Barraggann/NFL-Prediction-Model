@@ -134,8 +134,13 @@ def _num(texto: str) -> float | None:
     return float(texto) if texto not in ("", None) else None
 
 
-def reporte_semana(registro: list[dict], temporada: int, semana: int) -> str:
-    """Tabla de la semana, armada desde el registro (lo que quedó escrito)."""
+def reporte_semana(
+    registro: list[dict], temporada: int, semana: int, perfiles: dict | None = None
+) -> str:
+    """Tabla de la semana, armada desde el registro (lo que quedó escrito).
+
+    Con `perfiles` agrega el duelo ataque-defensa más desigual de cada partido.
+    """
     filas = [
         f for f in registro
         if int(f["temporada"]) == temporada and int(f["semana"]) == semana
@@ -192,6 +197,28 @@ def reporte_semana(registro: list[dict], temporada: int, semana: int) -> str:
             f"Mayor diferencia de confianza: {f['visita']} en {f['local']} "
             f"(modelo {float(f['p_pick']) * 100:.0f}% con {f['pick']}, Las Vegas {p_vegas * 100:.0f}%).",
         ]
+
+    if perfiles:
+        from .perfiles import duelos, texto_duelo
+
+        lineas += [
+            "",
+            "## Duelo más desigual de cada partido",
+            "",
+            "Ranking por partido entre los equipos de la liga, antes de esta semana. "
+            "Es contexto para explicar el pick: el modelo no usa estos rankings.",
+            "",
+            "| Partido | Duelo | Lugares de ventaja |",
+            "|---|---|---|",
+        ]
+        for f in filas:
+            cruces = duelos(perfiles, f["local"], f["visita"])
+            if not cruces:
+                continue
+            mayor = cruces[0]
+            lineas.append(
+                f"| {f['visita']} en {f['local']} | {texto_duelo(mayor)} | {mayor['ventaja']:+d} |"
+            )
     return "\n".join(lineas) + "\n"
 
 
@@ -234,8 +261,29 @@ def main() -> None:
 
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     ruta = REPORTS_DIR / f"semana_{temporada}_{semana:02d}.md"
-    ruta.write_text(reporte_semana(leer_registro(), temporada, semana), "utf-8")
+    ruta.write_text(
+        reporte_semana(leer_registro(), temporada, semana, perfiles_de_semana(temporada, semana)),
+        "utf-8",
+    )
     print(f"Tabla en {ruta}")
+
+
+def perfiles_de_semana(temporada: int, semana: int) -> dict:
+    """Perfiles con los partidos anteriores a esa semana. Vacío si faltan datos."""
+    import polars as pl
+
+    from .perfiles import cargar
+
+    partidos = pl.read_parquet(DATA_PROCESSED / "games.parquet").to_dicts()
+    fechas = [p["gameday"] for p in partidos if p["season"] == temporada and p["week"] == semana]
+    if not fechas:
+        return {}
+    try:
+        return cargar(temporada, antes_de=min(fechas))[0]
+    except KeyError:
+        # Datos descargados antes de que existieran las columnas de yardas.
+        print("  Sin perfiles: falta volver a correr python -m nfl_model.ingest")
+        return {}
 
 
 if __name__ == "__main__":

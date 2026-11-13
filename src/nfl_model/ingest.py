@@ -78,15 +78,27 @@ COLUMNAS_JUGADA = [
     "passer_id",
     "passer_player_id",
     "qb_epa",
+    # Para los perfiles de equipo (yardas, capturas, balones perdidos).
+    # play_type separa pase y carrera como en las estadísticas oficiales:
+    # las capturas cuentan en el pase y los scrambles en la carrera.
+    "play_type",
+    "yards_gained",
+    "sack",
+    "interception",
+    "fumble_lost",
 ]
 
 # Columnas que deben traer los archivos pbp_slim ya guardados.
 COLUMNAS_SLIM = [
     "game_id", "season", "week", "season_type", "posteam", "defteam",
     "pass", "rush", "epa", "success", "passer_id", "qb_epa",
+    "play_type", "yards_gained", "sack", "interception", "fumble_lost",
 ]
 
-METRICAS = ["plays", "epa", "pass_epa", "rush_epa", "success"]
+METRICAS = [
+    "plays", "epa", "pass_epa", "rush_epa", "success",
+    "yards", "pass_yards", "rush_yards", "sacks", "turnovers",
+]
 
 
 def normalizar_equipo(columna: str) -> pl.Expr:
@@ -147,6 +159,11 @@ def jugadas_utiles(pbp: pl.DataFrame) -> pl.DataFrame:
             pl.col("success").cast(pl.Float64),
             pl.col("season").cast(pl.Int32),
             pl.col("week").cast(pl.Int32),
+            pl.col("play_type").cast(pl.String),
+            pl.col("yards_gained").cast(pl.Float64).fill_null(0.0),
+            pl.col("sack").cast(pl.Float64).fill_null(0.0),
+            pl.col("interception").cast(pl.Float64).fill_null(0.0),
+            pl.col("fumble_lost").cast(pl.Float64).fill_null(0.0),
             pl.coalesce(
                 pl.col("passer_id").cast(pl.String),
                 pl.col("passer_player_id").cast(pl.String),
@@ -183,6 +200,11 @@ def resumir_por_equipo(jugadas: pl.DataFrame) -> pl.DataFrame:
         pl.col("epa").filter(pl.col("pass") == 1).mean().alias("off_pass_epa"),
         pl.col("epa").filter(pl.col("rush") == 1).mean().alias("off_rush_epa"),
         pl.col("success").mean().alias("off_success"),
+        pl.col("yards_gained").sum().alias("off_yards"),
+        pl.col("yards_gained").filter(pl.col("play_type") == "pass").sum().alias("off_pass_yards"),
+        pl.col("yards_gained").filter(pl.col("play_type") == "run").sum().alias("off_rush_yards"),
+        pl.col("sack").sum().alias("off_sacks"),
+        (pl.col("interception") + pl.col("fumble_lost")).sum().alias("off_turnovers"),
     )
 
     # La defensiva de un equipo es la ofensiva de su rival en ese partido.
