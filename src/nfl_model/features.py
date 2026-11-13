@@ -40,6 +40,8 @@ METRICAS_FORMA = [
     "def_success",
 ]
 
+METRICAS_CRUCE = ["off_pass_epa", "off_rush_epa", "def_pass_epa", "def_rush_epa"]
+
 # Lista oficial de variables del modelo (la usa la Fase 4).
 VARIABLES = (
     ["elo_diff", "neutral", "div_game", "rest_diff", "home_bye", "away_bye",
@@ -155,6 +157,11 @@ def construir_variables(
         f_l, f_v = forma[local], forma[visita]
         for m in METRICAS_FORMA:
             fila[f"diff_{m}"] = None if f_l is None or f_v is None else f_l[m] - f_v[m]
+        # Forma de cada equipo por separado. El modelo no la usa (no está en
+        # VARIABLES); queda guardada para experimentos como los cruces.
+        for m in METRICAS_CRUCE:
+            fila[f"home_{m}"] = None if f_l is None else f_l[m]
+            fila[f"away_{m}"] = None if f_v is None else f_v[m]
 
         # Quarterback: si aún no se anuncia titular, se asume el del último partido.
         titular = {}
