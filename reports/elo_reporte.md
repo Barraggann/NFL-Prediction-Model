@@ -1,6 +1,6 @@
 # Elo: reporte
 
-Generado: 2026-11-12T17:59:02
+Generado: 2026-11-18T02:48:55
 
 ## Parámetros elegidos
 
@@ -34,54 +34,53 @@ Las temporadas 2024–2025 no se evalúan aquí a propósito.
 
 | # | Equipo | Elo |
 |---|---|---|
-| 1 | BUF | 1693 |
-| 2 | DEN | 1642 |
-| 3 | JAX | 1640 |
-| 4 | SEA | 1631 |
-| 5 | SF | 1630 |
+| 1 | BUF | 1700 |
+| 2 | JAX | 1649 |
+| 3 | DEN | 1642 |
+| 4 | SF | 1642 |
+| 5 | SEA | 1642 |
 | 6 | CHI | 1625 |
-| 7 | LA | 1599 |
-| 8 | DET | 1591 |
-| 9 | CIN | 1586 |
-| 10 | MIN | 1585 |
-| 11 | GB | 1576 |
-| 12 | PIT | 1571 |
-| 13 | NE | 1561 |
-| 14 | KC | 1560 |
-| 15 | HOU | 1536 |
+| 7 | DET | 1620 |
+| 8 | MIN | 1620 |
+| 9 | LA | 1617 |
+| 10 | CIN | 1610 |
+| 11 | KC | 1584 |
+| 12 | PIT | 1546 |
+| 13 | GB | 1541 |
+| 14 | NE | 1532 |
+| 15 | HOU | 1520 |
 | 16 | TB | 1489 |
-| 17 | NYG | 1481 |
-| 18 | BAL | 1472 |
-| 19 | DAL | 1462 |
-| 20 | ATL | 1440 |
-| 21 | CLE | 1439 |
-| 22 | WAS | 1423 |
-| 23 | CAR | 1422 |
-| 24 | NO | 1414 |
-| 25 | LV | 1405 |
-| 26 | PHI | 1392 |
-| 27 | ARI | 1387 |
-| 28 | IND | 1384 |
-| 29 | LAC | 1369 |
-| 30 | MIA | 1362 |
-| 31 | NYJ | 1330 |
-| 32 | TEN | 1304 |
+| 17 | NYG | 1462 |
+| 18 | CLE | 1455 |
+| 19 | BAL | 1451 |
+| 20 | DAL | 1450 |
+| 21 | WAS | 1442 |
+| 22 | CAR | 1438 |
+| 23 | ATL | 1415 |
+| 24 | NO | 1398 |
+| 25 | LV | 1394 |
+| 26 | IND | 1393 |
+| 27 | PHI | 1392 |
+| 28 | LAC | 1390 |
+| 29 | ARI | 1369 |
+| 30 | MIA | 1354 |
+| 31 | NYJ | 1323 |
+| 32 | TEN | 1296 |
 
-## Picks por Elo: temporada 2026, semana 10
+## Picks por Elo: temporada 2026, semana 11
 
 | Visita | Local | Pick | Elo | Las Vegas (mismo equipo) |
 |---|---|---|---|---|
-| BUF | NYJ | BUF | 85.8% | 78.2% |
-| JAX | TEN | JAX | 83.9% | 82.2% |
-| SEA | LV | SEA | 73.4% | 71.8% |
-| LA | ARI | LA | 71.8% | 80.0% |
-| LAC | BAL | BAL | 70.7% | 66.9% |
-| SF | DAL | SF | 66.3% | 64.5% |
-| WAS | NYG | NYG | 65.0% | 53.2% |
-| MIA | IND | IND | 60.2% | 63.7% |
-| KC | ATL | KC | 59.9% | 61.6% |
-| PIT | CIN | CIN | 59.3% | 61.6% |
-| HOU | CLE | HOU | 56.7% | 66.4% |
-| CAR | NO | NO | 56.0% | 54.3% |
-| MIN | GB | GB | 55.8% | 58.3% |
-| NE | DET | DET | 54.2% | 58.3% |
+| MIA | BUF | BUF | 90.7% | 89.9% |
+| LV | DEN | DEN | 84.8% | 82.2% |
+| NO | CHI | CHI | 83.1% | 83.2% |
+| ARI | KC | KC | 82.1% | 89.9% |
+| TEN | DAL | DAL | 76.4% | 76.0% |
+| TB | DET | DET | 74.0% | 74.4% |
+| IND | HOU | HOU | 73.5% | 84.7% |
+| JAX | NYG | JAX | 68.7% | 69.6% |
+| CIN | WAS | CIN | 66.3% | 71.8% |
+| NYJ | LAC | LAC | 66.2% | 62.2% |
+| PIT | PHI | PIT | 64.6% | 65.7% |
+| BAL | CAR | CAR | 55.3% | 56.3% |
+| MIN | SF | SF | 53.2% | 59.3% |
