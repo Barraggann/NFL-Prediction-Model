@@ -45,3 +45,8 @@ reports/         tablas y gráficas semanales
 ## Datos
 
 nflverse, vía `nflreadpy`. Públicos, sin llave de API.
+
+## Documentación
+
+- [docs/tecnica.md](docs/tecnica.md): cómo funciona el modelo a detalle (datos, variables, validación, decisiones).
+- [docs/general.md](docs/general.md): explicación sin tecnicismos, para quien ve los picks.

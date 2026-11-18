@@ -1,11 +1,11 @@
 # Modelo: reporte de selección
 
-Generado: 2026-11-11T20:04:01
+Generado: 2026-11-18T02:41:34
 
 - Entrenamiento 2006–2020: 3997 partidos
 - Validación 2021–2023: 851 partidos
 - Variables: 18
-- **Modelo elegido:** `{"tipo": "boosting", "max_iter": 100, "max_depth": 2, "calibrar": false}`
+- **Modelo elegido:** `{"tipo": "logistica", "C": 0.003, "calibrar": false}`
 
 Las temporadas 2024–2025 no se evalúan aquí a propósito.
 
@@ -79,8 +79,8 @@ Positivo favorece al local.
 
 ## Calibración del modelo elegido
 
-- Log loss sin calibrar: 0.6356
-- Log loss calibrando cada temporada con las otras dos: 0.6367
+- Log loss sin calibrar: 0.6382
+- Log loss calibrando cada temporada con las otras dos: 0.6397
 - Platt sobre toda la validación: pendiente a = 0.964, desplazamiento b = -0.058 (a = 1 y b = 0 significa que ya estaba calibrado)
 - ¿Se aplica calibración? **No**
 
@@ -88,10 +88,10 @@ Positivo favorece al local.
 
 | Confianza | Partidos | Confianza media | Acierto real |
 |---|---|---|---|
-| 50–60% | 353 | 55.3% | 56.7% |
-| 60–70% | 248 | 64.4% | 66.1% |
-| 70–80% | 176 | 74.4% | 64.2% |
-| 80–100% | 74 | 84.2% | 91.9% |
+| 50–60% | 344 | 54.8% | 56.1% |
+| 60–70% | 274 | 64.8% | 60.9% |
+| 70–80% | 165 | 74.6% | 72.1% |
+| 80–100% | 68 | 83.3% | 86.8% |
 
 ### Rangos de confianza: logística (mejor C)
 
