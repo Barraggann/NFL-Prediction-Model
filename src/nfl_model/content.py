@@ -51,7 +51,11 @@ NARANJA = "#d95926"  # serie 2: Las Vegas
 FUENTE = ["Segoe UI", "DejaVu Sans"]
 
 FUERTE = 0.70
-MAX_PICKS = 5
+# Hasta 5 picks caben con el tamaño normal; el sexto entra con filas compactas.
+MAX_PICKS = 6
+PICKS_NORMALES = 5
+# Con menos partidos calificados en vivo, el historial lleva aviso (mismo umbral que track).
+MUESTRA_MINIMA = 50
 
 
 # ---------- utilidades de dibujo ----------
@@ -144,56 +148,82 @@ def mayor_diferencia(picks: list[dict]) -> dict | None:
     return mejor
 
 
-def datos_historial() -> tuple[list[dict], str]:
-    """(tabla por rango, texto de la fuente). En vivo si hay; si no, backtest."""
+def nota_muestra(partidos_en_vivo: int) -> str | None:
+    """Aviso para el historial en vivo mientras la muestra sea chica."""
+    if partidos_en_vivo >= MUESTRA_MINIMA:
+        return None
+    return f"Muestra chica: con {partidos_en_vivo} partidos, una racha aún no dice nada."
+
+
+def datos_historial() -> tuple[list[dict], str, str | None]:
+    """(tabla por rango, texto de la fuente, aviso). En vivo si hay; si no, backtest."""
     ruta = PICKS_DIR / "resultados.csv"
     if ruta.exists():
         with ruta.open(newline="", encoding="utf-8") as archivo:
             filas = list(csv.DictReader(archivo))
         decididos = [f for f in filas if f["estado"] in ("acierto", "fallo")]
         if decididos:
-            return por_rango(filas), f"Picks en vivo · {len(decididos)} partidos"
+            return (
+                por_rango(filas),
+                f"Picks en vivo · {len(decididos)} partidos",
+                nota_muestra(len(decididos)),
+            )
 
     ruta = DATA_PROCESSED / "backtest_predicciones.parquet"
     if not ruta.exists():
-        return [], ""
+        return [], "", None
     filas = []
     for f in pl.read_parquet(ruta).filter(pl.col("season") >= 2024).to_dicts():
         p = f["p_home_modelo"]
         acierto = (p >= 0.5) == (f["home_win"] == 1)
         filas.append({"p_pick": max(p, 1 - p), "estado": "acierto" if acierto else "fallo"})
-    return por_rango(filas), f"Backtest 2024–2025 · {len(filas)} partidos"
+    return por_rango(filas), f"Backtest 2024–2025 · {len(filas)} partidos", None
 
 
 # ---------- las tres imágenes ----------
 
 
+def titulos_picks(n_fuertes: int) -> tuple[str, str]:
+    """(título, subtítulo) de la imagen de picks según cuántos llegan a 70%."""
+    if n_fuertes == 0:
+        return "Los picks más fuertes", "Esta semana ninguno llega a 70%"
+    if n_fuertes > MAX_PICKS:
+        return (
+            f"Los {MAX_PICKS} picks más fuertes",
+            f"{n_fuertes} llegan a 70%; aquí los {MAX_PICKS} más altos",
+        )
+    return "Picks de 70% o más", "Probabilidad de victoria según el modelo"
+
+
 def imagen_picks(picks: list[dict], temporada: int, semana: int, ruta: Path) -> Path:
-    fuertes = [f for f in picks if float(f["p_pick"]) >= FUERTE][:MAX_PICKS]
-    hay_fuertes = bool(fuertes)
-    mostrar = fuertes or picks[:3]
+    fuertes = [f for f in picks if float(f["p_pick"]) >= FUERTE]
+    mostrar = fuertes[:MAX_PICKS] or picks[:3]
+    titulo, subtitulo = titulos_picks(len(fuertes))
 
     fig, ax = _lienzo()
-    _encabezado(
-        ax,
-        f"NFL · Semana {semana} · {temporada}",
-        "Picks de 70% o más" if hay_fuertes else "Los picks más fuertes",
-        "Probabilidad de victoria según el modelo"
-        if hay_fuertes
-        else "Esta semana ninguno llega a 70%",
-    )
+    _encabezado(ax, f"NFL · Semana {semana} · {temporada}", titulo, subtitulo)
     # El partido va pegado a su barra y lejos del siguiente equipo, para que
-    # no se lea como título de la fila de abajo.
+    # no se lea como título de la fila de abajo. Con 6 filas todo se compacta
+    # para que la última termine antes del aviso del pie.
+    compacto = len(mostrar) > PICKS_NORMALES
+    letra, paso, bajo_barra = (64, 150, 76) if compacto else (76, 185, 86)
     y = 610
     for f in mostrar:
         p = float(f["p_pick"])
-        _texto(ax, IZQ, y, f["pick"], 76, TINTA, "bold")
-        _texto(ax, DER, y, _pct(p), 76, TINTA, "bold", "right")
-        _barra(ax, y + 26, p, AZUL)
-        _texto(ax, IZQ, y + 86, f"{f['visita']} en {f['local']}", 30, TENUE)
-        y += 185
+        _texto(ax, IZQ, y, f["pick"], letra, TINTA, "bold")
+        _texto(ax, DER, y, _pct(p), letra, TINTA, "bold", "right")
+        _barra(ax, y + 22 if compacto else y + 26, p, AZUL)
+        _texto(ax, IZQ, y + bajo_barra, f"{f['visita']} en {f['local']}", 30, TENUE)
+        y += paso
     _pie(ax)
     return _guardar(fig, ruta)
+
+
+def nota_vegas(mismo_ganador: bool) -> str:
+    """Dato del backtest 2024–2025 que corresponde a la situación del partido."""
+    if mismo_ganador:
+        return "En el backtest 2024–2025 Las Vegas acertó 68% de los partidos; el modelo, 64%."
+    return "En el backtest 2024–2025, cuando eligieron distinto, Las Vegas acertó 53 de 83."
 
 
 def imagen_vegas(picks: list[dict], temporada: int, semana: int, ruta: Path) -> Path | None:
@@ -230,16 +260,18 @@ def imagen_vegas(picks: list[dict], temporada: int, semana: int, ruta: Path) -> 
         y += 190
 
     _texto(ax, IZQ, 1380, f"{abs(d['diferencia']) * 100:.1f} puntos de diferencia", 44, TINTA, "bold")
-    _texto(
-        ax, IZQ, 1430,
-        "En el backtest 2024–2025, cuando eligieron distinto, Las Vegas acertó 53 de 83.",
-        24, TENUE,
-    )
+    _texto(ax, IZQ, 1430, nota_vegas(mismo_ganador), 24, TENUE)
     _pie(ax)
     return _guardar(fig, ruta)
 
 
-def imagen_historial(tabla: list[dict], fuente: str, ruta: Path) -> Path | None:
+def _partidos(n: int) -> str:
+    return "partido" if n == 1 else "partidos"
+
+
+def imagen_historial(
+    tabla: list[dict], fuente: str, ruta: Path, nota: str | None = None
+) -> Path | None:
     if not tabla:
         return None
     fig, ax = _lienzo()
@@ -262,11 +294,16 @@ def imagen_historial(tabla: list[dict], fuente: str, ruta: Path) -> Path | None:
             # Marca con anillo del color del fondo para que se lea sobre el relleno.
             ax.add_patch(Rectangle((x - 6, y + 16), 12, 50, facecolor=FONDO, edgecolor="none"))
             ax.add_patch(Rectangle((x - 3, y + 18), 6, 46, facecolor=TINTA, edgecolor="none"))
-            _texto(ax, IZQ, y + 96, f"{r['aciertos']} de {r['partidos']} partidos", 30, TENUE)
+            _texto(
+                ax, IZQ, y + 96,
+                f"{r['aciertos']} de {r['partidos']} {_partidos(r['partidos'])}", 30, TENUE,
+            )
         else:
             _barra(ax, y + 28, 0, AZUL)
             _texto(ax, IZQ, y + 96, "Sin partidos calificados todavía", 30, TENUE)
         y += 188
+    if nota:
+        _texto(ax, IZQ, 1440, nota, 26, TINTA_2)
     _pie(ax)
     return _guardar(fig, ruta)
 
@@ -349,10 +386,11 @@ def main() -> None:
 
     carpeta = REPORTS_DIR / "contenido"
     base = f"semana_{temporada}_{semana:02d}"
+    tabla, fuente, nota = datos_historial()
     hechas = [
         imagen_picks(picks, temporada, semana, carpeta / f"{base}_picks.png"),
         imagen_vegas(picks, temporada, semana, carpeta / f"{base}_vegas.png"),
-        imagen_historial(*datos_historial(), carpeta / "historial.png"),
+        imagen_historial(tabla, fuente, carpeta / "historial.png", nota),
     ]
     from .predict import perfiles_de_semana
 

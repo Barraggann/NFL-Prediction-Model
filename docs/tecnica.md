@@ -447,10 +447,10 @@ Genera imágenes verticales 1080×1920 en `reports/contenido/` desde el registro
 
 | Imagen | Contenido |
 |---|---|
-| `semana_*_picks.png` | Picks de mayor confianza |
-| `semana_*_vegas.png` | Mayor diferencia con Las Vegas |
+| `semana_*_picks.png` | Picks de 70% o más (hasta 6; con 6 las filas se compactan; si hay más, el título dice "Los 6 picks más fuertes") |
+| `semana_*_vegas.png` | Mayor diferencia con Las Vegas; el dato del pie cambia según elijan o no el mismo ganador |
 | `semana_*_duelo.png` | Ataque contra defensa más desigual |
-| `historial.png` | Aciertos por rango (usa el backtest 2024–2025 hasta que haya picks en vivo calificados, y lo indica) |
+| `historial.png` | Aciertos por rango. Usa el backtest 2024–2025 hasta que haya picks en vivo calificados; con menos de 50 en vivo agrega un aviso de muestra chica |
 
 Todo se dibuja en píxeles con Matplotlib, dentro de una zona segura que evita los botones de TikTok/Reels. Incluye siempre el aviso "experimento, no consejo de apuestas".
 
@@ -551,7 +551,7 @@ Para reconstruir todo desde cero: `ingest → elo → features → train → bac
 
 ### Pruebas
 
-`pytest` (76 pruebas, todas pasan; 75 funciones `test_`, una parametrizada) cubre: limpieza y abreviaturas, fórmulas de Elo y moneyline, anti-fuga de variables, selección y calibración, walk-forward (que nunca entrene con fechas ≥ corte), registro de solo-agregar, calificación, perfiles, imágenes y el experimento de cruces.
+`pytest` (81 pruebas, todas pasan; 80 funciones `test_`, una parametrizada) cubre: limpieza y abreviaturas, fórmulas de Elo y moneyline, anti-fuga de variables, selección y calibración, walk-forward (que nunca entrene con fechas ≥ corte), registro de solo-agregar, calificación, perfiles, imágenes y el experimento de cruces.
 
 ## 15. Trabajo futuro
 

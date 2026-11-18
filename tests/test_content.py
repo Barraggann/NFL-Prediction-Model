@@ -8,9 +8,14 @@ from nfl_model.content import (
     ANCHO,
     imagen_historial,
     imagen_picks,
+    MAX_PICKS,
+    MUESTRA_MINIMA,
     imagen_vegas,
     mayor_diferencia,
+    nota_muestra,
+    nota_vegas,
     picks_de_semana,
+    titulos_picks,
 )
 
 
@@ -78,3 +83,35 @@ def test_imagen_de_historial(tmp_path):
     ]
     assert _es_vertical(imagen_historial(tabla, "Backtest 2024–2025 · 520 partidos", tmp_path / "h.png"))
     assert imagen_historial([], "", tmp_path / "vacio.png") is None
+
+
+def test_titulos_picks_no_prometen_de_mas():
+    assert titulos_picks(0)[0] == "Los picks más fuertes"
+    # Si caben todos, el título "70% o más" es cierto.
+    assert titulos_picks(MAX_PICKS)[0] == "Picks de 70% o más"
+    # Si hay más de los que caben, el título dice cuántos se muestran.
+    titulo, subtitulo = titulos_picks(MAX_PICKS + 2)
+    assert titulo == f"Los {MAX_PICKS} picks más fuertes"
+    assert str(MAX_PICKS + 2) in subtitulo
+
+
+def test_imagen_de_picks_con_seis_fuertes(tmp_path):
+    base = picks_de_semana(_registro(), 2026, 10)[0]
+    seis = [{**base, "game_id": f"g{i}", "p_pick": f"0.{80 - i}"} for i in range(6)]
+    assert _es_vertical(imagen_picks(seis, 2026, 10, tmp_path / "seis.png"))
+
+
+def test_nota_de_muestra_chica():
+    assert "14 partidos" in nota_muestra(14)
+    assert nota_muestra(MUESTRA_MINIMA) is None
+
+
+def test_imagen_de_historial_con_nota(tmp_path):
+    tabla = [{"rango": "80–100%", "partidos": 1, "aciertos": 1, "confianza_media": 0.8}]
+    ruta = imagen_historial(tabla, "Picks en vivo · 1 partidos", tmp_path / "h.png", nota_muestra(1))
+    assert _es_vertical(ruta)
+
+
+def test_nota_vegas_segun_desacuerdo():
+    assert "53 de 83" in nota_vegas(False)
+    assert "53 de 83" not in nota_vegas(True)
